@@ -1,13 +1,20 @@
 var gulp = require('gulp');
 var browserify = require('gulp-browserify');
+var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 
-// Basic usage
-gulp.task('build', function() {
+gulp.task('compile', function () {
   gulp.src('src/main.js')
   .pipe(browserify({
-    standalone: 'batchTransitions'
+    standalone: 'trender'
   }))
-  .pipe(rename('batch-transitions.js'))
+  .pipe(rename('trender.js'))
   .pipe(gulp.dest('./dist'))
+});
+
+gulp.task('build', ['compile'], function () {
+  gulp.src('dist/trender.js')
+  .pipe(uglify())
+  .pipe(rename('trender.min.js'))
+  .pipe(gulp.dest('./dist'));
 });
