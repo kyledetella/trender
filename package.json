@@ -1,0 +1,24 @@
+{
+  "name": "batch-transitions",
+  "version": "0.0.0",
+  "description": "Batch css transition end events and then get on with your life when its done",
+  "main": "index.js",
+  "scripts": {
+    "build": "./node_modules/gulp/bin/gulp.js build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "homepage": "https://github.com/kyledetella/batchr",
+  "bugs": "https://github.com/kyledetella/batchr/issues",
+  "author": {
+    "name": "Kyle DeTella",
+    "email": "kdetella@gmail.com",
+    "url": "https://github.com/kyledetella"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "browserify": "^4.1.8",
+    "gulp": "^3.7.0",
+    "gulp-browserify": "^0.5.0",
+    "gulp-rename": "^1.2.0"
+  }
+}

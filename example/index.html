@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    #runner {
+      width: 80px;
+      height: 80px;
+      background-color: tomato;
+      -webkit-transform: translateX(0);
+      -moz-transform: translateX(0);
+      transform: translateX(0);
+
+      -webkit-transition: -webkit-transform 380ms cubic-bezier(0.175, 0.885, 0.320, 1.275), background-color 380ms linear;
+      -moz-transition: transform 380ms cubic-bezier(0.175, 0.885, 0.320, 1.275), background-color 380ms linear;
+      transition: transform 380ms cubic-bezier(0.175, 0.885, 0.320, 1.275), background-color 380ms linear;
+    }
+
+    #runner.run {
+      background-color: royalblue;
+      -webkit-transform: translateX(100px);
+      -moz-transform: translateX(100px);
+      transform: translateX(100px);
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="runner"></div>
+
+  <script src="../dist/batch-transitions.js"></script>
+  <script>
+    var runner = document.getElementById('runner');
+    batchTransitions(runner, {
+      className: 'run',
+      stepped: function (event) {
+        console.log(event.propertyName);
+      },
+      callback: function () {
+        console.log('All transitions are resolved!');
+      }
+    });
+  </script>
+</body>
+</html>
