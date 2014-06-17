@@ -1,0 +1,25 @@
+{
+  "name": "trender",
+  "version": "0.0.1",
+  "homepage": "https://github.com/kyledetella/trender",
+  "authors": [
+    "Kyle DeTella <kdetella@gmail.com>"
+  ],
+  "description": "Batch css transition end events and then get on with your life.",
+  "main": "dist/trender.js",
+  "keywords": [
+    "css",
+    "transitionend",
+    "animation",
+    "css3",
+    "ui"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
