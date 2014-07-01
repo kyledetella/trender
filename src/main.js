@@ -1,4 +1,5 @@
 var batchTransitions;
+var RSVP = require('rsvp');
 var prefixer = require('./prefixer');
 
 function parsePropertiesForTransition(el) {
@@ -16,34 +17,36 @@ function batchTransitions(el, options) {
   var returnSteps = typeof options.stepped === 'function';
   var batch = 0;
 
-  function handleTransitionEnd(event) {
-    batch++;
+  var promise = new RSVP.Promise(function (resolve, reject) {
+    function handleTransitionEnd(event) {
+      batch++;
 
-    if (returnSteps) {
-      options.stepped(event);
+      if (returnSteps) {
+        options.stepped(event);
+      }
+
+      if (batch === transitions.length) {
+        complete();
+      }
     }
 
-    if (batch === transitions.length) {
-      complete();
-    }
-  }
+    function complete() {
+      detachListener();
 
-  function complete() {
-    detachListener();
-
-    if (typeof options.callback === 'function') {
       requestAnimationFrame(function () {
-        options.callback();
+        resolve();
       });
     }
-  }
 
-  function detachListener() {
-    el.removeEventListener(endEvent, handleTransitionEnd);
-  }
+    function detachListener() {
+      el.removeEventListener(endEvent, handleTransitionEnd);
+    }
 
-  el.addEventListener(endEvent, handleTransitionEnd);
-  el.classList.toggle(options.className);
+    el.addEventListener(endEvent, handleTransitionEnd);
+    el.classList.toggle(options.className);
+  });
+
+  return promise;
 }
 
 module.exports = batchTransitions;
