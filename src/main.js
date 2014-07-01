@@ -1,5 +1,11 @@
+/* global requestAnimationFrame: true */
+
+'use strict';
+
 var batchTransitions;
 var prefixer = require('./prefixer');
+
+require('./raf');
 
 function parsePropertiesForTransition(el) {
   var styles = window.getComputedStyle(el);

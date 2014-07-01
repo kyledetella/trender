@@ -30,10 +30,10 @@
 
   <div id="runner"></div>
 
-  <script src="../dist/batch-transitions.js"></script>
+  <script src="../dist/trender.js"></script>
   <script>
     var runner = document.getElementById('runner');
-    batchTransitions(runner, {
+    trender(runner, {
       className: 'run',
       stepped: function (event) {
         console.log(event.propertyName);

@@ -1,6 +1,12 @@
 !function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.trender=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+/* global requestAnimationFrame: true */
+
+'use strict';
+
 var batchTransitions;
 var prefixer = _dereq_('./prefixer');
+
+_dereq_('./raf');
 
 function parsePropertiesForTransition(el) {
   var styles = window.getComputedStyle(el);
@@ -49,7 +55,7 @@ function batchTransitions(el, options) {
 
 module.exports = batchTransitions;
 
-},{"./prefixer":2}],2:[function(_dereq_,module,exports){
+},{"./prefixer":2,"./raf":3}],2:[function(_dereq_,module,exports){
 // http://davidwalsh.name/vendor-prefix
 var prefix = (function () {
 
@@ -81,6 +87,35 @@ module.exports = {
   getTransition: getTransition,
   getTransitionEnd: getTransitionEnd
 };
+
+},{}],3:[function(_dereq_,module,exports){
+'use strict';
+
+var rAf, cAf;
+var lastTime = 0;
+var vendors = ['ms', 'moz', 'webkit', 'o'];
+
+for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+  window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+  window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+}
+
+if (!window.requestAnimationFrame) {
+  window.requestAnimationFrame = function (callback, element) {
+    var currTime = new Date().getTime();
+    var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+    var id = window.setTimeout(function() { callback(currTime + timeToCall); }, timeToCall);
+
+    lastTime = currTime + timeToCall;
+    return id;
+  };
+}
+
+if (!window.cancelAnimationFrame) {
+  window.cancelAnimationFrame = function(id) {
+    clearTimeout(id);
+  };
+}
 
 },{}]},{},[1])
 (1)
