@@ -38,5 +38,3 @@ gulp.task('bump', function (){
   .pipe(bump({ type:'point' }))
   .pipe(gulp.dest('./'));
 });
-
-gulp.task('release', ['build', 'bump']):
