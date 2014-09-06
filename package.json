@@ -1,8 +1,8 @@
 {
   "name": "trender",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Batch css transition end events and then get on with your life when its done",
-  "main": "index.js",
+  "main": "src/main.js",
   "scripts": {
     "build": "./node_modules/gulp/bin/gulp.js build",
     "test": "echo \"Error: no test specified\" && exit 1"

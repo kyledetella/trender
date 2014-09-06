@@ -37,7 +37,7 @@ Add transition properties to your element(s) and provide a class selector under 
 ```javascript
   trender(document.getElementById('my-el'), {
     className: 'run',
-    ended: function () {
+    callback: function () {
       //...
     }
   });
