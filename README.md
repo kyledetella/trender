@@ -55,5 +55,5 @@ if (Modernizr.csstransition) {
 
 ## Options
 - `className`: _String_ to add/remove class from element
-- `ended`: _Function_ callback that will execute when all transitions have resolved.
+- `callback`: _Function_ callback that will execute when all transitions have resolved.
 - `stepper`: _Function_ callback that will execute per transition end
