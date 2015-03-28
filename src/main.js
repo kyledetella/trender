@@ -5,7 +5,7 @@
 var batchTransitions;
 var prefixer = require('./prefixer');
 
-require('./raf');
+require('raf');
 
 function parsePropertiesForTransition(el) {
   var styles = window.getComputedStyle(el);
