@@ -1,5 +1,7 @@
 var gulp = require('gulp');
-var browserify = require('gulp-browserify');
+var browserify = require('browserify');
+var source = require('vinyl-source-stream');
+var babelify = require('babelify');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var size = require('gulp-size');
@@ -7,23 +9,23 @@ var bump = require('gulp-bump');
 var jshint = require('gulp-jshint');
 var reporter = require('jshint-stylish');
 
-var SRC = 'src/main.js';
+var SRC = './src/main.js';
 
 gulp.task('compile', function () {
-  gulp.src(SRC)
-  .pipe(browserify({
-    standalone: 'trender'
-  }))
-  .pipe(rename('trender.js'))
-  .pipe(size())
-  .pipe(gulp.dest('./dist'))
+  return browserify(SRC)
+    .transform(babelify)
+    .bundle()
+    .pipe(source('trender.js'))
+    .pipe(gulp.dest('./dist'));
 });
 
 gulp.task('build', ['test', 'compile'], function () {
-  gulp.src('dist/trender.js')
+  return gulp.src('dist/trender.js')
+  .pipe(size({showFiles: true}))
   .pipe(uglify())
   .pipe(rename('trender.min.js'))
-  .pipe(size())
+  .pipe(size({showFiles: true}))
+  .pipe(size({gzip: true, showFiles: true}))
   .pipe(gulp.dest('./dist'));
 });
 
