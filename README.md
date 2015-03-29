@@ -40,7 +40,7 @@ var trender = new Trender({
   {className: 'run'}
 });
 
-trender.onTransitionsComplete(fucntion () {
+trender.onTransitionsComplete(function () {
   // all transitions have resolved
 });
 
@@ -62,7 +62,10 @@ if (Modernizr.csstransition) {
 ```
 
 ## Options
-- `className`: _String_ to add/remove class from element
+
+| Key | Type | Description |
+| --- | ---- | ----- |
+| `className` | `String` | A class against which you have styled your CSS transitions |
 
 ## Hooks
 
