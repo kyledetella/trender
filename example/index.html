@@ -33,15 +33,17 @@
   <script src="../dist/trender.js"></script>
   <script>
     var runner = document.getElementById('runner');
-    trender(runner, {
-      className: 'run',
-      stepped: function (event) {
-        console.log(event.propertyName);
-      },
-      callback: function () {
-        console.log('All transitions are resolved!');
-      }
+    var t = new Trender({el: runner, className: 'run'});
+    t.trigger();
+
+    t.onTransitionsComplete(function () {
+      console.log('i - am - a - happy - user');
     });
+    t.onEachTransitionEnd(function (event) {
+      console.log('tick', event.originalEvent.propertyName);
+    });
+
+    setTimeout(t.trigger, 3000);
   </script>
 </body>
 </html>

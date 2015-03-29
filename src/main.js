@@ -1,55 +1,81 @@
-/* global requestAnimationFrame: true */
-
 'use strict';
 
-var batchTransitions;
+var isFunction = require('amp-is-function');
 var prefixer = require('./prefixer');
+var END_EVENT = prefixer.getTransitionEnd();
 
 require('raf');
+
+function noop() {}
 
 function parsePropertiesForTransition(el) {
   var styles = window.getComputedStyle(el);
   var transitions = styles[prefixer.getTransition() + 'Property'].split(',');
 
   return transitions.map(function (transition) {
-    return transition.split(' ')[0];
+    return transition.trim();
   });
 }
 
-function batchTransitions(el, options) {
-  var transitions = parsePropertiesForTransition(el);
-  var endEvent = prefixer.getTransitionEnd();
-  var returnSteps = typeof options.stepped === 'function';
-  var batch = 0;
 
-  function handleTransitionEnd(event) {
-    batch++;
+function Trender(options) {
+  this.consumerOnTransitionsCompleteCallback = noop;
+  this.consumerOnEachTransitionEnd = noop;
+  this.batch = 0;
 
-    if (returnSteps) {
-      options.stepped(event);
-    }
+  this.element = options.el;
+  this.className = options.className;
+  this.transitions = parsePropertiesForTransition(this.element);
 
-    if (batch === transitions.length) {
-      complete();
-    }
-  }
-
-  function complete() {
-    detachListener();
-
-    if (typeof options.callback === 'function') {
-      requestAnimationFrame(function () {
-        options.callback();
-      });
-    }
-  }
-
-  function detachListener() {
-    el.removeEventListener(endEvent, handleTransitionEnd);
-  }
-
-  el.addEventListener(endEvent, handleTransitionEnd);
-  el.classList.toggle(options.className);
+  this.trigger = this.trigger.bind(this);
+  this.transitionEndHandler = this.handleTransitionEnd.bind(this);
 }
 
-module.exports = batchTransitions;
+Trender.prototype.attachEvents = function () {
+  this.element.addEventListener(END_EVENT, this.transitionEndHandler);
+};
+
+Trender.prototype.detachEvents = function () {
+  this.element.removeEventListener(END_EVENT, this.transitionEndHandler);
+};
+
+Trender.prototype.handleTransitionEnd = function (event) {
+  this.batch++;
+
+  this.consumerOnEachTransitionEnd({originalEvent: event});
+
+  if (this.batch === this.transitions.length) {
+    this.complete();
+  }
+};
+
+Trender.prototype.complete = function () {
+  this.detachEvents();
+  this.batch = 0;
+
+  requestAnimationFrame(function () {
+    this.consumerOnTransitionsCompleteCallback();
+  }.bind(this));
+};
+
+Trender.prototype.onTransitionsComplete = function (cb) {
+  if (!isFunction(cb)) {
+    console.warn('onTransitionsComplete expects a callback function!');
+  }
+  this.consumerOnTransitionsCompleteCallback = cb;
+};
+
+Trender.prototype.onEachTransitionEnd = function (cb) {
+  if (!isFunction(cb)) {
+    console.warn('onEachTransitionEnd expects a callback function!');
+  }
+
+  this.consumerOnEachTransitionEnd = cb;
+};
+
+Trender.prototype.trigger = function () {
+  this.attachEvents();
+  this.element.classList.toggle(this.className);
+};
+
+module.exports = Trender;

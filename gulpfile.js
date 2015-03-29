@@ -12,7 +12,7 @@ var reporter = require('jshint-stylish');
 var SRC = './src/main.js';
 
 gulp.task('compile', function () {
-  return browserify(SRC, {standalone: 'trender'})
+  return browserify(SRC, {standalone: 'Trender'})
     .transform(babelify)
     .bundle()
     .pipe(source('trender.js'))
@@ -41,6 +41,6 @@ gulp.task('bump', function (){
   .pipe(gulp.dest('./'));
 });
 
-gulp.task('watch', function () {
+gulp.task('watch', ['build'], function () {
   gulp.watch('./src/**/*.js', ['build']);
 });

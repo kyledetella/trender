@@ -1,61 +1,101 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.trender = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-/* global requestAnimationFrame: true */
-
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Trender = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
-var batchTransitions;
+var isFunction = require("amp-is-function");
 var prefixer = require("./prefixer");
+var END_EVENT = prefixer.getTransitionEnd();
 
 require("raf");
+
+function noop() {}
 
 function parsePropertiesForTransition(el) {
   var styles = window.getComputedStyle(el);
   var transitions = styles[prefixer.getTransition() + "Property"].split(",");
 
   return transitions.map(function (transition) {
-    return transition.split(" ")[0];
+    return transition.trim();
   });
 }
 
-function batchTransitions(el, options) {
-  var transitions = parsePropertiesForTransition(el);
-  var endEvent = prefixer.getTransitionEnd();
-  var returnSteps = typeof options.stepped === "function";
-  var batch = 0;
+function Trender(options) {
+  this.consumerOnTransitionsCompleteCallback = noop;
+  this.consumerOnEachTransitionEnd = noop;
+  this.batch = 0;
 
-  function handleTransitionEnd(event) {
-    batch++;
+  this.element = options.el;
+  this.className = options.className;
+  this.transitions = parsePropertiesForTransition(this.element);
 
-    if (returnSteps) {
-      options.stepped(event);
-    }
-
-    if (batch === transitions.length) {
-      complete();
-    }
-  }
-
-  function complete() {
-    detachListener();
-
-    if (typeof options.callback === "function") {
-      requestAnimationFrame(function () {
-        options.callback();
-      });
-    }
-  }
-
-  function detachListener() {
-    el.removeEventListener(endEvent, handleTransitionEnd);
-  }
-
-  el.addEventListener(endEvent, handleTransitionEnd);
-  el.classList.toggle(options.className);
+  this.trigger = this.trigger.bind(this);
+  this.transitionEndHandler = this.handleTransitionEnd.bind(this);
 }
 
-module.exports = batchTransitions;
+Trender.prototype.attachEvents = function () {
+  this.element.addEventListener(END_EVENT, this.transitionEndHandler);
+};
 
-},{"./prefixer":5,"raf":3}],2:[function(require,module,exports){
+Trender.prototype.detachEvents = function () {
+  this.element.removeEventListener(END_EVENT, this.transitionEndHandler);
+};
+
+Trender.prototype.handleTransitionEnd = function (event) {
+  this.batch++;
+
+  this.consumerOnEachTransitionEnd({ originalEvent: event });
+
+  if (this.batch === this.transitions.length) {
+    this.complete();
+  }
+};
+
+Trender.prototype.complete = function () {
+  this.detachEvents();
+  this.batch = 0;
+
+  requestAnimationFrame((function () {
+    this.consumerOnTransitionsCompleteCallback();
+  }).bind(this));
+};
+
+Trender.prototype.onTransitionsComplete = function (cb) {
+  if (!isFunction(cb)) {
+    console.warn("onTransitionsComplete expects a callback function!");
+  }
+  this.consumerOnTransitionsCompleteCallback = cb;
+};
+
+Trender.prototype.onEachTransitionEnd = function (cb) {
+  if (!isFunction(cb)) {
+    console.warn("onEachTransitionEnd expects a callback function!");
+  }
+
+  this.consumerOnEachTransitionEnd = cb;
+};
+
+Trender.prototype.trigger = function () {
+  this.attachEvents();
+  this.element.classList.toggle(this.className);
+};
+
+module.exports = Trender;
+
+},{"./prefixer":6,"amp-is-function":2,"raf":4}],2:[function(require,module,exports){
+var toString = Object.prototype.toString;
+var func = function isFunction(obj) {
+    return toString.call(obj) === '[object Function]';
+};
+
+// Optimize `isFunction` if appropriate. Work around an IE 11 bug.
+if (typeof /./ !== 'function') {
+    func = function isFunction(obj) {
+      return typeof obj == 'function' || false;
+    };
+}
+
+module.exports = func;
+
+},{}],3:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -115,7 +155,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var now = require('performance-now')
   , global = typeof window === 'undefined' ? {} : window
   , vendors = ['moz', 'webkit']
@@ -197,7 +237,7 @@ module.exports.cancel = function() {
   caf.apply(global, arguments)
 }
 
-},{"performance-now":4}],4:[function(require,module,exports){
+},{"performance-now":5}],5:[function(require,module,exports){
 (function (process){
 // Generated by CoffeeScript 1.6.3
 (function() {
@@ -237,7 +277,7 @@ module.exports.cancel = function() {
 */
 
 }).call(this,require('_process'))
-},{"_process":2}],5:[function(require,module,exports){
+},{"_process":3}],6:[function(require,module,exports){
 // http://davidwalsh.name/vendor-prefix
 "use strict";
 
